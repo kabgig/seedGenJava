@@ -41,6 +41,7 @@ public class WalletValidator {
             Wallet wallet = Wallet.fromSeed(params, deterministicSeed, ScriptType.P2PKH);
 
             DeterministicKey key = HDKeyDerivation.createMasterPrivateKey(deterministicSeed.getSeedBytes());
+           // modify this for checking multichain wallets
             DeterministicKey derivedKey = HDKeyDerivation.deriveChildKey(
                     HDKeyDerivation.deriveChildKey(
                             HDKeyDerivation.deriveChildKey(
