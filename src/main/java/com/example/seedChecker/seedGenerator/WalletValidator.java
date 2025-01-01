@@ -32,7 +32,6 @@ public class WalletValidator {
     private static final String BITCOIN_BALANCE_API_URL = "https://api.blockchain.info/haskoin-store/btc/address/";
 
     public void validateSeedPhrase(List<String> seedPhrase) {
-        System.out.println("Validating seed phrase: " + seedPhrase);
         try {
             // Validate Bitcoin wallet
             NetworkParameters params = MainNetParams.get();
@@ -41,27 +40,25 @@ public class WalletValidator {
             Wallet wallet = Wallet.fromSeed(params, deterministicSeed, ScriptType.P2PKH);
 
             DeterministicKey key = HDKeyDerivation.createMasterPrivateKey(deterministicSeed.getSeedBytes());
-           // modify this for checking multichain wallets
+            // modify this for checking multichain wallets
             DeterministicKey derivedKey = HDKeyDerivation.deriveChildKey(
                     HDKeyDerivation.deriveChildKey(
                             HDKeyDerivation.deriveChildKey(
                                     HDKeyDerivation.deriveChildKey(
                                             HDKeyDerivation.deriveChildKey(
-                                                    key, new ChildNumber(44, true)), // BIP44
-                                            new ChildNumber(0, true)), // Coin type (0 for Bitcoin)
-                                    new ChildNumber(0, true)), // Account (0 for the first account)
-                            new ChildNumber(0, false)), // Change (0 for external chain)
+                                                    key, new ChildNumber(44, true)),
+                                            new ChildNumber(0, true)),
+                                    new ChildNumber(0, true)),
+                            new ChildNumber(0, false)),
                     new ChildNumber(0, false));
 
             Address address = derivedKey.toAddress(ScriptType.P2PKH, params.network());
 
-            System.out.println("Bitcoin address: " + address);
             if (address != null) {
                 BigInteger balance = hasBitcoinBalance(address.toString());
                 if (balance.equals(BigInteger.ZERO)) {
-                    System.out.println("No funds in Bitcoin wallet");
+                    System.out.println("No funds in Bitcoin wallet: " + address);
                 } else {
-                    //позже сделать чтобы сохранялось в файл или бд
                     String result = "Bitcoin wallet " + address + " validated with balance: " + balance + "\nSeed phrase: " + seedPhrase + "\n";
                     System.out.println(result);
                     appendResultToFile(result);
@@ -103,7 +100,7 @@ public class WalletValidator {
 
     private BigInteger hasBitcoinBalance(String address) {
         try {
-            URL url = new URL(BITCOIN_BALANCE_API_URL+address + "/balance");
+            URL url = new URL(BITCOIN_BALANCE_API_URL + address + "/balance");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.connect();

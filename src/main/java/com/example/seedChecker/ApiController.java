@@ -22,6 +22,7 @@ public class ApiController {
     @GetMapping("/start")
     public String start() {
         try {
+            connector.turnOn();
             connector.connect();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -43,6 +44,13 @@ public class ApiController {
         } catch (IOException e) {
             throw new RuntimeException("Error reading result file: " + e.getMessage());
         }
+    }
+
+    //curl http://localhost:8080/control/turnOff
+    @GetMapping("/turnOff")
+    public String turnOff() {
+        connector.turnOff();
+        return "Switch turned off";
     }
 
 }
