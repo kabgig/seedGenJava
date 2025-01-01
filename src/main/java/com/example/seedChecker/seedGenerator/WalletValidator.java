@@ -65,7 +65,6 @@ public class WalletValidator {
                 }
             }
 
-
 //            // Validate Ethereum wallet
 //            String mnemonic = String.join(" ", seedPhrase);
 //            Credentials credentials = WalletUtils.loadBip39Credentials(null, mnemonic);
@@ -92,7 +91,7 @@ public class WalletValidator {
 
     private void appendResultToFile(String result) {
         try {
-            Files.write(Paths.get("src/main/java/com/example/seedChecker/result.txt"), result.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            Files.write(Paths.get("../result.txt"), result.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException e) {
             System.out.println("Error writing to file: " + e.getMessage());
         }

@@ -40,7 +40,7 @@ public class ApiController {
     @GetMapping("/result")
     public String getResult() {
         try {
-            return new String(Files.readAllBytes(Paths.get("src/main/java/com/example/seedChecker/result.txt")));
+            return new String(Files.readAllBytes(Paths.get("../result.txt")));
         } catch (IOException e) {
             throw new RuntimeException("Error reading result file: " + e.getMessage());
         }
