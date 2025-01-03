@@ -26,6 +26,7 @@ public class Sorter {
         int count = 0;
         for (String address : sourceAddresses) {
             if (!targetAddresses.contains(address)) {
+                System.out.println("checking balance");
                 BigInteger balance = walletValidator.hasBitcoinBalance(address);
                 if (!balance.equals(BigInteger.ZERO)) {
                     Files.write(Paths.get(targetFilePath), (address + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);

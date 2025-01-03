@@ -24,7 +24,6 @@ public class ApiController {
     //curl http://localhost:8080/control/start
     @GetMapping("/start")
     public String start() {
-       // Files.write(Paths.get("../result.txt"), result.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         try {
             connector.turnOn();
             connector.connect();
@@ -34,19 +33,11 @@ public class ApiController {
         return "Application started";
     }
 
-//    @GetMapping("/stop")
-//    public String stop() {
-//        // Stop logic
-//        return "Application stopped";
-//    }
-
     // curl -X GET http://localhost:8080/control/sort
     @GetMapping("/sort")
     public void sort() {
         String TARGET_FILE_PATH = Paths.get("..", "allAddrSorted.txt").toString();
         String SOURCE_FILE_PATH = Paths.get("..", "allAddr.txt").toString();
-        //String SOURCE_FILE_PATH = "../allAddr.txt";
-        //String TARGET_FILE_PATH = "../allAddrSorted.txt";
         try {
             sorter.checkAndAddAddresses(SOURCE_FILE_PATH, TARGET_FILE_PATH);
         } catch (IOException e) {
@@ -58,7 +49,7 @@ public class ApiController {
     @GetMapping("/result")
     public String getResult() {
         try {
-            return new String(Files.readAllBytes(Paths.get("../result.txt")));
+            return new String(Files.readAllBytes(Paths.get("..", "result.txt")));
         } catch (IOException e) {
             throw new RuntimeException("Error reading result file: " + e.getMessage());
         }
