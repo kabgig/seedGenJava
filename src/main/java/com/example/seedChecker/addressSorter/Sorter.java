@@ -33,6 +33,9 @@ public class Sorter {
                     count++;
                     System.out.println("Count: " + count + " Added: " + address + " Balance: " + balance);
                 }
+            } else {
+                System.out.println("Count: " + count + " Address already exists: " + address);
+                count++;
             }
         }
     }
