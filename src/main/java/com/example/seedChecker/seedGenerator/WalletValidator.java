@@ -52,7 +52,6 @@ public class WalletValidator {
                     new ChildNumber(0, false));
 
             Address address = derivedKey.toAddress(ScriptType.P2PKH, params.network());
-
             if (address != null) {
                 BigInteger balance = hasBitcoinBalance(address.toString());
                 if (balance.equals(BigInteger.ZERO)) {
@@ -90,7 +89,7 @@ public class WalletValidator {
 
     private void appendResultToFile(String result) {
         try {
-            Files.write(Paths.get("../result.txt"), result.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            Files.write(Paths.get("..", "result.txt"), result.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException e) {
             System.out.println("Error writing to file: " + e.getMessage());
         }
