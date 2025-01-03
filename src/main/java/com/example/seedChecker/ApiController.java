@@ -43,8 +43,10 @@ public class ApiController {
     // curl -X GET http://localhost:8080/control/sort
     @GetMapping("/sort")
     public void sort() {
-        String SOURCE_FILE_PATH = "../allAddr.txt";
-        String TARGET_FILE_PATH = "../allAddrSorted.txt";
+        String TARGET_FILE_PATH = Paths.get("..", "allAddrSorted.txt").toString();
+        String SOURCE_FILE_PATH = Paths.get("..", "allAddr.txt").toString();
+        //String SOURCE_FILE_PATH = "../allAddr.txt";
+        //String TARGET_FILE_PATH = "../allAddrSorted.txt";
         try {
             sorter.checkAndAddAddresses(SOURCE_FILE_PATH, TARGET_FILE_PATH);
         } catch (IOException e) {

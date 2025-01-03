@@ -25,12 +25,14 @@ public class Sorter {
 
         int count = 0;
         for (String address : sourceAddresses) {
-            BigInteger balance = walletValidator.hasBitcoinBalance(address);
-            if (!balance.equals(BigInteger.ZERO) && !targetAddresses.contains(address)) {
-                Files.write(Paths.get(targetFilePath), (address + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-                targetAddresses.add(address);
-                count++;
-                System.out.println("Count: " + count + " Added: " + address + " Balance: " + balance);
+            if (!targetAddresses.contains(address)) {
+                BigInteger balance = walletValidator.hasBitcoinBalance(address);
+                if (!balance.equals(BigInteger.ZERO)) {
+                    Files.write(Paths.get(targetFilePath), (address + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                    targetAddresses.add(address);
+                    count++;
+                    System.out.println("Count: " + count + " Added: " + address + " Balance: " + balance);
+                }
             }
         }
     }
