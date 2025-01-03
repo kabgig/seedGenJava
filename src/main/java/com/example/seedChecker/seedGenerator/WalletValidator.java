@@ -11,7 +11,6 @@ import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.Wallet;
-import org.bitcoinj.base.Network;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -97,7 +96,7 @@ public class WalletValidator {
         }
     }
 
-    private BigInteger hasBitcoinBalance(String address) {
+    public BigInteger hasBitcoinBalance(String address) {
         try {
             URL url = new URL(BITCOIN_BALANCE_API_URL + address + "/balance");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();

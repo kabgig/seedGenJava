@@ -1,5 +1,6 @@
 package com.example.seedChecker;
 
+import com.example.seedChecker.addressSorter.Sorter;
 import com.example.seedChecker.seedGenerator.Connector;
 import com.example.seedChecker.seedGenerator.Generator;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +11,7 @@ import lombok.AllArgsConstructor;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 @RestController
@@ -17,10 +19,12 @@ import java.util.List;
 @AllArgsConstructor
 public class ApiController {
     private final Connector connector;
+    private final Sorter sorter;
 
     //curl http://localhost:8080/control/start
     @GetMapping("/start")
     public String start() {
+       // Files.write(Paths.get("../result.txt"), result.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         try {
             connector.turnOn();
             connector.connect();
@@ -30,10 +34,22 @@ public class ApiController {
         return "Application started";
     }
 
-    @GetMapping("/stop")
-    public String stop() {
-        // Stop logic
-        return "Application stopped";
+//    @GetMapping("/stop")
+//    public String stop() {
+//        // Stop logic
+//        return "Application stopped";
+//    }
+
+    // curl -X GET http://localhost:8080/control/sort
+    @GetMapping("/sort")
+    public void sort() {
+        String SOURCE_FILE_PATH = "../allAddr.txt";
+        String TARGET_FILE_PATH = "../allAddrSorted.txt";
+        try {
+            sorter.checkAndAddAddresses(SOURCE_FILE_PATH, TARGET_FILE_PATH);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     //curl -X GET http://localhost:8080/control/result
