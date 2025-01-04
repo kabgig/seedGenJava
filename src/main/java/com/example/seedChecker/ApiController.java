@@ -24,9 +24,28 @@ public class ApiController {
     //curl http://localhost:8080/control/start
     @GetMapping("/start")
     public String start() {
+        String desktopPath = System.getProperty("user.home") + "/Desktop/result.txt";
+        try {
+            Files.write(Paths.get(desktopPath), "test".getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            System.out.println("Error writing to file: " + e.getMessage());
+        }
         try {
             connector.turnOn();
             connector.connect();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return "Application started";
+    }
+
+    //curl http://localhost:8080/control/start2
+    @GetMapping("/start2")
+    public String start2() {
+        String SOURCE_FILE_PATH = Paths.get("..", "allAddr.txt").toString();
+        try {
+            connector.turnOn();
+            connector.connectList(SOURCE_FILE_PATH);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -40,6 +59,30 @@ public class ApiController {
         String SOURCE_FILE_PATH = Paths.get("..", "allAddr.txt").toString();
         try {
             sorter.checkAndAddAddresses(SOURCE_FILE_PATH, TARGET_FILE_PATH);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // curl -X GET http://localhost:8080/control/extractTsv
+    @GetMapping("/extractTsv")
+    public void extractTsv() {
+        String TARGET_FILE_PATH = Paths.get("..", "allAddrFromTsv.txt").toString();
+        String SOURCE_FILE_PATH = Paths.get("..", "allAddr.tsv").toString();
+        try {
+            sorter.extractTsv(SOURCE_FILE_PATH, TARGET_FILE_PATH);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // curl -X GET http://localhost:8080/control/checkCut
+    @GetMapping("/checkCut")
+    public void checkCut() {
+        String TARGET_FILE_PATH = Paths.get("..", "allAddrSorted.txt").toString();
+        String SOURCE_FILE_PATH = Paths.get("..", "allAddr.txt").toString();
+        try {
+            sorter.checkCutAndAddAddresses(SOURCE_FILE_PATH, TARGET_FILE_PATH);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
