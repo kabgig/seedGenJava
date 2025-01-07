@@ -153,12 +153,13 @@ public class Sorter {
                     addressRepository.saveAll(addresses);
                     addresses.clear();
                     amount = 0;
-                    System.out.println("Saved 10000 addresses");
+                    System.out.println("Loaded addresses" + currentLine);
                 }
                 writeLastProcessedLine(currentLine,2);
             }
         } catch (IOException e) {
             System.out.println("Error processing file: " + e.getMessage());
         }
+        // сделать индексацию адресов
     }
 }
