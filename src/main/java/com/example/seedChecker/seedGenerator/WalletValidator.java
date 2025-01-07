@@ -32,16 +32,19 @@ import java.util.Set;
 public class WalletValidator {
     private static final String INFURA_URL = "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID";
     private static final String BITCOIN_BALANCE_API_URL = "https://api.blockchain.info/haskoin-store/btc/address/";
+    private final Context context;
+    private final NetworkParameters params;
+
+    public WalletValidator() {
+        params = MainNetParams.get();
+        this.context = new Context(params);
+    }
 
     public void validateSeedPhrase(List<String> seedPhrase) {
         try {
-            // Validate Bitcoin wallet
-            NetworkParameters params = MainNetParams.get();
-            Context.propagate(new Context(params));
+            Context.propagate(context);
             DeterministicSeed deterministicSeed = new DeterministicSeed(seedPhrase, null, "", 0);
-//оптимизировать создание контекста (нужно ли реально каждый раз создават контекст?)
             DeterministicKey key = HDKeyDerivation.createMasterPrivateKey(deterministicSeed.getSeedBytes());
-            // modify this for checking multichain wallets
             DeterministicKey derivedKey = HDKeyDerivation.deriveChildKey(
                     HDKeyDerivation.deriveChildKey(
                             HDKeyDerivation.deriveChildKey(
@@ -107,8 +110,7 @@ public class WalletValidator {
     }
 
     public void validateSeedPhrase2(List<String> seedPhrase, String sourceFilePath, long i) throws IOException {
-        NetworkParameters params = MainNetParams.get();
-        Context.propagate(new Context(params));
+        Context.propagate(context);
         DeterministicSeed deterministicSeed = new DeterministicSeed(seedPhrase, null, "", 0);
 
         DeterministicKey key = HDKeyDerivation.createMasterPrivateKey(deterministicSeed.getSeedBytes());
