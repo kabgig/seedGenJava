@@ -39,7 +39,7 @@ public class WalletValidator {
             NetworkParameters params = MainNetParams.get();
             Context.propagate(new Context(params));
             DeterministicSeed deterministicSeed = new DeterministicSeed(seedPhrase, null, "", 0);
-
+//оптимизировать создание контекста (нужно ли реально каждый раз создават контекст?)
             DeterministicKey key = HDKeyDerivation.createMasterPrivateKey(deterministicSeed.getSeedBytes());
             // modify this for checking multichain wallets
             DeterministicKey derivedKey = HDKeyDerivation.deriveChildKey(
