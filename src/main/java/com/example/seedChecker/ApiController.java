@@ -39,6 +39,19 @@ public class ApiController {
         return "Application started";
     }
 
+    //curl http://localhost:8080/control/loadBase
+    @GetMapping("/loadBase")
+    public String loadBase() {
+        String SOURCE_FILE_PATH = Paths.get("..", "allAddr.txt").toString();
+        try {
+            sorter.loadBase(SOURCE_FILE_PATH);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return "Done";
+    }
+
+
     //curl http://localhost:8080/control/start2
     @GetMapping("/start2")
     public String start2() {

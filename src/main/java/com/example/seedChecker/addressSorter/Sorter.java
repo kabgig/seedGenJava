@@ -1,5 +1,7 @@
 package com.example.seedChecker.addressSorter;
 
+import com.example.seedChecker.repo.Address;
+import com.example.seedChecker.repo.AddressRepository;
 import com.example.seedChecker.seedGenerator.WalletValidator;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,9 @@ import java.util.Set;
 @AllArgsConstructor
 public class Sorter {
     private final WalletValidator walletValidator;
+    private final AddressRepository addressRepository;
     private static final String LINE_NUMBER_FILE = "../lastProcessedLine.txt";
+    private static final String LINE_NUMBER_FILE2 = "../lastProcessedLine2.txt";
 
     public void checkAndAddAddresses(String sourceFilePath, String targetFilePath) throws IOException {
         List<String> sourceAddresses = Files.readAllLines(Paths.get(sourceFilePath));
@@ -60,7 +64,7 @@ public class Sorter {
     }
 
     public void checkCutAndAddAddresses(String sourceFilePath, String targetFilePath) throws IOException {
-        int lastProcessedLine = readLastProcessedLine();
+        int lastProcessedLine = readLastProcessedLine(1);
         int currentLine = 0;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(sourceFilePath));
@@ -83,16 +87,26 @@ public class Sorter {
                 } else {
                     System.out.println("No balance: " + values[0]);
                 }
-                writeLastProcessedLine(currentLine);
+                writeLastProcessedLine(currentLine, 1);
             }
         } catch (IOException e) {
             System.out.println("Error processing file: " + e.getMessage());
         }
     }
-    private int readLastProcessedLine() {
+    private int readLastProcessedLine(int i) {
+        boolean isExisting = switch (i) {
+            case 1 -> Files.exists(Paths.get(LINE_NUMBER_FILE));
+            case 2 -> Files.exists(Paths.get(LINE_NUMBER_FILE2));
+            default -> false;
+        };
+        String path = switch (i) {
+            case 1 -> LINE_NUMBER_FILE;
+            case 2 -> LINE_NUMBER_FILE2;
+            default -> "";
+        };
         try {
-            if (Files.exists(Paths.get(LINE_NUMBER_FILE))) {
-                return Integer.parseInt(new String(Files.readAllBytes(Paths.get(LINE_NUMBER_FILE))).trim());
+            if (isExisting) {
+                return Integer.parseInt(new String(Files.readAllBytes(Paths.get(path))).trim());
             }
         } catch (IOException e) {
             System.out.println("Error reading last processed line number: " + e.getMessage());
@@ -100,12 +114,51 @@ public class Sorter {
         return 0;
     }
 
-    private void writeLastProcessedLine(int lineNumber) {
+    private void writeLastProcessedLine(int lineNumber, int i) {
+        String path = switch (i) {
+            case 1 -> LINE_NUMBER_FILE;
+            case 2 -> LINE_NUMBER_FILE2;
+            default -> "";
+        };
         try {
-            Files.write(Paths.get(LINE_NUMBER_FILE), String.valueOf(lineNumber).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(Paths.get(path), String.valueOf(lineNumber).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             System.out.println("Error writing last processed line number: " + e.getMessage());
         }
     }
 
+    public void loadBase(String sourceFilePath) {
+        int lastProcessedLine = readLastProcessedLine(2);
+        int currentLine = 0;
+        Set<Address> addresses = new HashSet<>();
+        int amount = 0;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(sourceFilePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                currentLine++;
+                if (currentLine <= lastProcessedLine) {
+                    System.out.println("Skipping line: " + currentLine + " Last processed line: " + lastProcessedLine);
+                    continue;
+                } else {
+                   // System.out.println("Processing line: " + currentLine);
+                }
+
+                String[] values = line.split("\t");
+                var address = new Address();
+                address.setAddress(values[0]);
+                addresses.add(address);
+                amount++;
+                if ( amount >=10000) {
+                    addressRepository.saveAll(addresses);
+                    addresses.clear();
+                    amount = 0;
+                    System.out.println("Saved 10000 addresses");
+                }
+                writeLastProcessedLine(currentLine,2);
+            }
+        } catch (IOException e) {
+            System.out.println("Error processing file: " + e.getMessage());
+        }
+    }
 }

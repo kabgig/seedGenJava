@@ -1,6 +1,7 @@
 --liquibase formatted sql
 
 --changeset liquibase:1
-CREATE TABLE addresses (
-    address TEXT PRIMARY KEY
+CREATE TABLE address(
+   id BIGSERIAL PRIMARY KEY,
+    address TEXT
 );
