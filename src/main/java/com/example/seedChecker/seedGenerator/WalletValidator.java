@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -82,30 +83,53 @@ public class WalletValidator {
     }
 
     public BigInteger hasBitcoinBalance(String address) {
-        try {
-            URL url = new URL(BITCOIN_BALANCE_API_URL + address + "/balance");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.connect();
+        int retryCount = 0;
+        while (true) {
+            try {
+                URL url = new URL(BITCOIN_BALANCE_API_URL + address + "/balance");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+                conn.connect();
 
-            int responseCode = conn.getResponseCode();
-            if (responseCode != 200) {
-                throw new RuntimeException("HttpResponseCode: " + responseCode);
+                int responseCode = conn.getResponseCode();
+                if (responseCode != 200) {
+                    throw new RuntimeException("HttpResponseCode: " + responseCode);
+                }
+
+                Scanner scanner = new Scanner(url.openStream());
+                String inline = "";
+                while (scanner.hasNext()) {
+                    inline += scanner.nextLine();
+                }
+                scanner.close();
+
+                JSONObject jsonResponse = new JSONObject(inline);
+                BigInteger balance = jsonResponse.getBigInteger("confirmed");
+                return balance;
+            } catch (UnknownHostException e) {
+                retryCount++;
+                System.out.println("Network error: " + e.getMessage() + ". Retrying in 5 seconds..." + "retry#: " + retryCount);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Thread was interrupted", ie);
+                }
+            } catch (IOException e) {
+                retryCount++;
+                System.out.println("Timeout error: " + e.getMessage() + ". Retrying in 5 seconds..." + "retry#: " + retryCount);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Thread was interrupted", ie);
+                }
+            } catch (Exception e) {
+                System.out.println("Error checking Bitcoin balance: " + e.getMessage());
+                return BigInteger.ZERO;
             }
-
-            Scanner scanner = new Scanner(url.openStream());
-            String inline = "";
-            while (scanner.hasNext()) {
-                inline += scanner.nextLine();
-            }
-            scanner.close();
-
-            JSONObject jsonResponse = new JSONObject(inline);
-            BigInteger balance = jsonResponse.getBigInteger("confirmed");
-            return balance;
-        } catch (Exception e) {
-            System.out.println("Error checking Bitcoin balance: " + e.getMessage());
-            return BigInteger.ZERO;
         }
     }
 
@@ -128,7 +152,7 @@ public class WalletValidator {
 
         Address address = derivedKey.toAddress(ScriptType.P2PKH, params.network());
         if (address != null) {
-            int a=0;
+            int a = 0;
             Path path = Paths.get(sourceFilePath);
             try (BufferedReader reader = Files.newBufferedReader(path)) {
                 String line;
@@ -140,7 +164,7 @@ public class WalletValidator {
                         appendResultToFile(result);
                         return;
                     } else {
-                        System.out.println("Address: " + values[0] + "  Seed #"+ i + " " + seedPhrase + " does not match");
+                        System.out.println("Address: " + values[0] + "  Seed #" + i + " " + seedPhrase + " does not match");
                     }
                     System.out.println("Checked: " + a);
                     a++;
