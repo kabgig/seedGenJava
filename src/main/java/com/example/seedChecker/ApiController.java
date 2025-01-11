@@ -42,7 +42,7 @@ public class ApiController {
     //curl http://localhost:8080/control/loadBase
     @GetMapping("/loadBase")
     public String loadBase() {
-        String SOURCE_FILE_PATH = Paths.get("..", "allAddr.txt").toString();
+        String SOURCE_FILE_PATH = Paths.get("..", "allAddrSorted.txt").toString();
         try {
             sorter.loadBase(SOURCE_FILE_PATH);
         } catch (Exception e) {
@@ -55,10 +55,10 @@ public class ApiController {
     //curl http://localhost:8080/control/start2
     @GetMapping("/start2")
     public String start2() {
-        String SOURCE_FILE_PATH = Paths.get("..", "allAddr.txt").toString();
+//        String SOURCE_FILE_PATH = Paths.get("..", "allAddr.txt").toString();
         try {
             connector.turnOn();
-            connector.connectList(SOURCE_FILE_PATH);
+            connector.connectList();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

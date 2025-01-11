@@ -5,12 +5,15 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class Connector {
     private final WalletValidator walletValidator;
     private final Generator generator;
     private boolean isOn;
+    private final ExecutorService executorService1 = Executors.newSingleThreadExecutor();
 
     public Connector(WalletValidator walletValidator, Generator generator) {
         this.walletValidator = walletValidator;
@@ -31,17 +34,19 @@ public class Connector {
         }
     }
 
-    public void connectList(String path) {
-        long i = 0;
-        try {
-            while (isOn) {
-                walletValidator.validateSeedPhrase2(generator.generateSeedPhrase(),path, i);
-                System.out.println("Checked seedphrases: " + i);
-                i++;
+    public void connectList() {
+        executorService1.submit(() -> {
+            long i = 0;
+            try {
+                while (isOn) {
+                    walletValidator.validateSeedPhrase2(generator.generateSeedPhrase());
+                    System.out.println("Checked seedphrases: " + i);
+                    i++;
+                }
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+        });
     }
 
     public void turnOn() {

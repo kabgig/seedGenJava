@@ -3,7 +3,6 @@ package com.example.seedChecker.seedGenerator;
 import com.example.seedChecker.repo.AddressRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.bitcoinj.base.Address;
 import org.bitcoinj.base.ScriptType;
 import org.bitcoinj.core.Context;
@@ -16,23 +15,18 @@ import org.bitcoinj.wallet.DeterministicSeed;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
 @Service
 public class WalletValidator {
     private static final String INFURA_URL = "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID";
@@ -133,7 +127,8 @@ public class WalletValidator {
         }
     }
 
-    public void validateSeedPhrase2(List<String> seedPhrase, String sourceFilePath, long i) throws IOException {
+    public void validateSeedPhrase2(List<String> seedPhrase) throws IOException {
+        //переделать сразу чтобы пачками проверять
         Context.propagate(context);
         DeterministicSeed deterministicSeed = new DeterministicSeed(seedPhrase, null, "", 0);
         DeterministicKey key = HDKeyDerivation.createMasterPrivateKey(deterministicSeed.getSeedBytes());
@@ -155,7 +150,7 @@ public class WalletValidator {
                 System.out.println(result);
                 appendResultToFile(result);
             } else {
-                System.out.println("Address: " + address + "  Seed #" + i + " " + seedPhrase + " does not match");
+                System.out.println("seedAddress: " + address + " is not in base");
             }
         } else {
             System.out.println("No funds in Bitcoin wallet: " + address);
