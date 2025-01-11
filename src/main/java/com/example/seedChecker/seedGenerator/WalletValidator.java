@@ -1,6 +1,9 @@
 package com.example.seedChecker.seedGenerator;
 
+import com.example.seedChecker.repo.AddressRepository;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.bitcoinj.base.Address;
 import org.bitcoinj.base.ScriptType;
 import org.bitcoinj.core.Context;
@@ -29,17 +32,14 @@ import java.util.Scanner;
 import java.util.Set;
 
 @AllArgsConstructor
+@NoArgsConstructor(force = true)
 @Service
 public class WalletValidator {
     private static final String INFURA_URL = "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID";
     private static final String BITCOIN_BALANCE_API_URL = "https://api.blockchain.info/haskoin-store/btc/address/";
-    private final Context context;
-    private final NetworkParameters params;
-
-    public WalletValidator() {
-        params = MainNetParams.get();
-        this.context = new Context(params);
-    }
+    private final NetworkParameters params = MainNetParams.get();
+    private final Context context = new Context(params);
+    private final AddressRepository addressRepository;
 
     public void validateSeedPhrase(List<String> seedPhrase) {
         try {
@@ -136,9 +136,7 @@ public class WalletValidator {
     public void validateSeedPhrase2(List<String> seedPhrase, String sourceFilePath, long i) throws IOException {
         Context.propagate(context);
         DeterministicSeed deterministicSeed = new DeterministicSeed(seedPhrase, null, "", 0);
-
         DeterministicKey key = HDKeyDerivation.createMasterPrivateKey(deterministicSeed.getSeedBytes());
-        // modify this for checking multichain wallets
         DeterministicKey derivedKey = HDKeyDerivation.deriveChildKey(
                 HDKeyDerivation.deriveChildKey(
                         HDKeyDerivation.deriveChildKey(
@@ -152,28 +150,13 @@ public class WalletValidator {
 
         Address address = derivedKey.toAddress(ScriptType.P2PKH, params.network());
         if (address != null) {
-            int a = 0;
-            Path path = Paths.get(sourceFilePath);
-            try (BufferedReader reader = Files.newBufferedReader(path)) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] values = line.split("\t");
-                    if (values[0].equals(address.toString())) {
-                        String result = "Bitcoin wallet " + values[0] + " validated Seed phrase: " + seedPhrase + "\n";
-                        System.out.println(result);
-                        appendResultToFile(result);
-                        return;
-                    } else {
-                        System.out.println("Address: " + values[0] + "  Seed #" + i + " " + seedPhrase + " does not match");
-                    }
-                    System.out.println("Checked: " + a);
-                    a++;
-                }
-            } catch (IOException e) {
-                System.out.println("Error reading file: " + e.getMessage());
+            if (addressRepository.existsByAddress(address.toString())) {
+                String result = "Bitcoin wallet " + address + " validated Seed phrase: " + seedPhrase + "\n";
+                System.out.println(result);
+                appendResultToFile(result);
+            } else {
+                System.out.println("Address: " + address + "  Seed #" + i + " " + seedPhrase + " does not match");
             }
-
-
         } else {
             System.out.println("No funds in Bitcoin wallet: " + address);
         }

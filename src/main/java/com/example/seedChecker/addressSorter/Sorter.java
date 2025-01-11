@@ -93,6 +93,7 @@ public class Sorter {
             System.out.println("Error processing file: " + e.getMessage());
         }
     }
+
     private int readLastProcessedLine(int i) {
         boolean isExisting = switch (i) {
             case 1 -> Files.exists(Paths.get(LINE_NUMBER_FILE));
@@ -130,7 +131,7 @@ public class Sorter {
     public void loadBase(String sourceFilePath) {
         int lastProcessedLine = readLastProcessedLine(2);
         int currentLine = 0;
-        Set<Address> addresses = new HashSet<>();
+        //Set<Address> addresses = new HashSet<>();
         int amount = 0;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(sourceFilePath))) {
@@ -141,21 +142,27 @@ public class Sorter {
                     System.out.println("Skipping line: " + currentLine + " Last processed line: " + lastProcessedLine);
                     continue;
                 } else {
-                   // System.out.println("Processing line: " + currentLine);
+                    // System.out.println("Processing line: " + currentLine);
                 }
 
                 String[] values = line.split("\t");
                 var address = new Address();
                 address.setAddress(values[0]);
-                addresses.add(address);
+//                addresses.add(address);
                 amount++;
-                if ( amount >=10000) {
-                    addressRepository.saveAll(addresses);
-                    addresses.clear();
-                    amount = 0;
-                    System.out.println("Loaded addresses" + currentLine);
+                try {
+                    addressRepository.save(address);
+                    System.out.println("Amount: " + amount + "Saved address: " + address.getAddress());
+                } catch (Exception e) {
+                    System.out.println("Error saving address: " + e.getMessage());
                 }
-                writeLastProcessedLine(currentLine,2);
+//                if ( amount >=10000) {
+//                    addressRepository.saveAll(addresses);
+//                    addresses.clear();
+//                    amount = 0;
+//                    System.out.println("Loaded addresses" + currentLine);
+//                }
+                writeLastProcessedLine(currentLine, 2);
             }
         } catch (IOException e) {
             System.out.println("Error processing file: " + e.getMessage());
