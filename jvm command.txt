@@ -1,0 +1,1 @@
+java -Xms512m -Xmx1024m -XX:ParallelGCThreads=2 -XX:CICompilerCount=2 -jar seedChecker2.jar --server.port=8082

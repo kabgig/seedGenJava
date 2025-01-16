@@ -83,6 +83,16 @@ public class Sorter {
                 BigInteger balance = walletValidator.hasBitcoinBalance(values[0]);
                 if (!balance.equals(BigInteger.ZERO)) {
                     Files.write(Paths.get(targetFilePath), (values[0] + System.lineSeparator()).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+
+                    var address = new Address();
+                    address.setAddress(values[0]);
+                    try {
+                        addressRepository.save(address);
+                        System.out.println( " Saved address: " + address.getAddress());
+                    } catch (Exception e) {
+                        System.out.println("Error saving address: " + e.getMessage());
+                    }
+
                     System.out.println("Processed: " + values[0] + " Balance: " + balance);
                 } else {
                     System.out.println("No balance: " + values[0]);

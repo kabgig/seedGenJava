@@ -104,18 +104,18 @@ public class WalletValidator {
                 return balance;
             } catch (UnknownHostException e) {
                 retryCount++;
-                System.out.println("Network error: " + e.getMessage() + ". Retrying in 50 seconds..." + "retry#: " + retryCount);
+                System.out.println("Network error: " + e.getMessage() + ". Retrying in 10 seconds..." + "retry#: " + retryCount);
                 try {
-                    Thread.sleep(50000);
+                    Thread.sleep(10000);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     throw new RuntimeException("Thread was interrupted", ie);
                 }
             } catch (IOException e) {
                 retryCount++;
-                System.out.println("Timeout error: " + e.getMessage() + ". Retrying in 50 seconds..." + "retry#: " + retryCount);
+                System.out.println("Timeout error: " + e.getMessage() + ". Retrying in 10 seconds..." + "retry#: " + retryCount);
                 try {
-                    Thread.sleep(50000);
+                    Thread.sleep(10000);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     throw new RuntimeException("Thread was interrupted", ie);

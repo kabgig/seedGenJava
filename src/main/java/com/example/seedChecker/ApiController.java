@@ -92,8 +92,8 @@ public class ApiController {
     // curl -X GET http://localhost:8080/control/checkCut
     @GetMapping("/checkCut")
     public void checkCut() {
-        String TARGET_FILE_PATH = Paths.get("..", "allAddrSorted.txt").toString();
         String SOURCE_FILE_PATH = Paths.get("..", "allAddr.txt").toString();
+        String TARGET_FILE_PATH = Paths.get("..", "allAddrSorted.txt").toString();
         try {
             sorter.checkCutAndAddAddresses(SOURCE_FILE_PATH, TARGET_FILE_PATH);
         } catch (IOException e) {
